@@ -1,7 +1,13 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 func main() {
-	fmt.Printf("Hello!")
+	userHeight := 1.93
+	var userKg float64 = 93
+	imt := userKg / math.Pow(userHeight, 2)
+	fmt.Print(imt)
 }
