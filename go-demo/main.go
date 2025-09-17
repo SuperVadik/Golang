@@ -5,9 +5,27 @@ import (
 	"math"
 )
 
+const power float64 = 2
+
 func main() {
-	userHeight := 1.93
-	var userKg float64 = 93
-	imt := userKg / math.Pow(userHeight, 2)
-	fmt.Print(imt)
+	fmt.Println("Калькулятор индекса массы тела")
+	userHeight, userKg := GetUserInput()
+	imt := CalculateImt(userHeight, userKg)
+	OutputResult(imt)
+}
+
+func OutputResult(imt float64) {
+	fmt.Printf("Ваш ИМТ: %.0f", imt)
+}
+
+func CalculateImt(userHeight, userKg float64) float64 {
+	return userKg / math.Pow(userHeight/100, power)
+}
+func GetUserInput() (float64, float64) {
+	var userHeight, userKg float64
+	fmt.Print("Введите свой рост в сантиметрах: ")
+	fmt.Scan(&userHeight)
+	fmt.Print("Введите свой вес: ")
+	fmt.Scan(&userKg)
+	return userHeight, userKg
 }
