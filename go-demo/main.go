@@ -9,19 +9,32 @@ const power float64 = 2
 
 func main() {
 	fmt.Println("Калькулятор индекса массы тела")
-	userHeight, userKg := GetUserInput()
-	imt := CalculateImt(userHeight, userKg)
-	OutputResult(imt)
+	userHeight, userKg := getUserInput()
+	imt := calculateImt(userHeight, userKg)
+
+	outputResult(imt)
+	switch {
+	case imt < 16:
+		fmt.Println("У вас сильный дефицит массы тела")
+	case imt < 18.5:
+		fmt.Println("У вас дефицит массы тела")
+	case imt < 25:
+		fmt.Println("У вас нормальный вес")
+	case imt < 30:
+		fmt.Println("У вас избыточный вес")
+	default:
+		fmt.Println("У вас степень ожирения")
+	}
 }
 
-func OutputResult(imt float64) {
-	fmt.Printf("Ваш ИМТ: %.0f", imt)
+func outputResult(imt float64) {
+	fmt.Printf("Ваш ИМТ: %.0f\n", imt)
 }
 
-func CalculateImt(userHeight, userKg float64) float64 {
+func calculateImt(userHeight, userKg float64) float64 {
 	return userKg / math.Pow(userHeight/100, power)
 }
-func GetUserInput() (float64, float64) {
+func getUserInput() (float64, float64) {
 	var userHeight, userKg float64
 	fmt.Print("Введите свой рост в сантиметрах: ")
 	fmt.Scan(&userHeight)
