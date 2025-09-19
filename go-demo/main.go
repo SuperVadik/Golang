@@ -17,24 +17,10 @@ func main() {
 
 	}()
 	fmt.Println("Калькулятор индекса массы тела")
-	for {
-		userHeight, userKg := getUserInput()
-		imt, err := calculateImt(userHeight, userKg)
-		if err != nil {
-			//fmt.Println("Не заданы параметры для расчёта")
-			//continue
-			panic("Не заданы параметры для расчёта")
-		}
-		outputResult(imt)
-		if !checkRepeatCalculation() {
-			break
-		}
-	}
-}
+	userHeight, userKg := getUserInput()
+	imt := calculateImt(userHeight, userKg)
 
-func outputResult(imt float64) {
-	result := fmt.Sprintf("Ваш ИМТ: %.0f", imt)
-	fmt.Println(result)
+	outputResult(imt)
 	switch {
 	case imt < 16:
 		fmt.Println("У вас сильный дефицит массы тела")
@@ -47,16 +33,15 @@ func outputResult(imt float64) {
 	default:
 		fmt.Println("У вас степень ожирения")
 	}
-	fmt.Println()
 }
 
-func calculateImt(userHeight, userKg float64) (float64, error) {
-	if userKg <= 0 || userHeight <= 0 {
-		return -1, errors.New("ERROR")
-	}
-	return userKg / math.Pow(userHeight/100, power), nil
+func outputResult(imt float64) {
+	fmt.Printf("Ваш ИМТ: %.0f\n", imt)
 }
 
+func calculateImt(userHeight, userKg float64) float64 {
+	return userKg / math.Pow(userHeight/100, power)
+}
 func getUserInput() (float64, float64) {
 	var userHeight, userKg float64
 	fmt.Print("Введите свой рост в сантиметрах: ")
