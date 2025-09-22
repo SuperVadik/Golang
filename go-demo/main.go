@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -9,10 +10,21 @@ import (
 const power float64 = 2
 
 func main() {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recover ", r)
+		}
+
+	}()
 	fmt.Println("Калькулятор индекса массы тела")
 	for {
 		userHeight, userKg := getUserInput()
-		imt := calculateImt(userHeight, userKg)
+		imt, err := calculateImt(userHeight, userKg)
+		if err != nil {
+			//fmt.Println("Не заданы параметры для расчёта")
+			//continue
+			panic("Не заданы параметры для расчёта")
+		}
 		outputResult(imt)
 		if !checkRepeatCalculation() {
 			break
@@ -21,7 +33,7 @@ func main() {
 }
 
 func outputResult(imt float64) {
-	result := fmt.Sprintf("Ваш ИМТ: %.0f\n", imt)
+	result := fmt.Sprintf("Ваш ИМТ: %.0f", imt)
 	fmt.Println(result)
 	switch {
 	case imt < 16:
@@ -35,10 +47,14 @@ func outputResult(imt float64) {
 	default:
 		fmt.Println("У вас степень ожирения")
 	}
+	fmt.Println()
 }
 
-func calculateImt(userHeight, userKg float64) float64 {
-	return userKg / math.Pow(userHeight/100, power)
+func calculateImt(userHeight, userKg float64) (float64, error) {
+	if userKg <= 0 || userHeight <= 0 {
+		return -1, errors.New("ERROR")
+	}
+	return userKg / math.Pow(userHeight/100, power), nil
 }
 
 func getUserInput() (float64, float64) {
@@ -52,7 +68,7 @@ func getUserInput() (float64, float64) {
 
 func checkRepeatCalculation() bool {
 	var userChoise string
-	fmt.Print("Вы хотите выполнить ещё расчёт? (y/n)")
+	fmt.Print("Вы хотите выполнить ещё расчёт? (y/n): ")
 	fmt.Scan(&userChoise)
 	return strings.ToUpper(userChoise) == "Y"
 }
