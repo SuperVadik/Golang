@@ -1,7 +1,11 @@
 package main
 
-func main() {
-	transactions := [3]int{5, 10, -7}
-	banks := [2]string{"Тинькофф", "Альфа"}
+import "fmt"
 
+func main() {
+	transactions := []int{0, 20, 35}
+	temp := transactions
+	transactions = append(transactions, 100)
+	fmt.Println(temp)
+	fmt.Println(transactions)
 }
