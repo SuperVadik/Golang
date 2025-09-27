@@ -8,6 +8,10 @@ func main() {
 	tr1 = append(tr1, tr2...)
 	fmt.Println(tr1)
 
+	for index := range tr1 {
+		fmt.Println(index)
+	}
+
 	transactions := []float64{}
 	for {
 		transaction := scanTransaction()
