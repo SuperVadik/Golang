@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	operation := []string{"AWG", "SUM", "MED"}
+	operation := []string{"AVG", "SUM", "MED"}
 	fmt.Println("Рассчёт массива")
 	input, err := scan()
 	if err != nil {
@@ -27,7 +27,7 @@ func calculate(numbers []float64, operationVal string) (float64, error) {
 	sum := sum(numbers)
 
 	switch operationVal {
-	case "AWG":
+	case "AVG":
 
 		if len(numbers) == 0 {
 			return 0, nil
