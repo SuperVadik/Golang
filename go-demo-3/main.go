@@ -3,16 +3,9 @@ package main
 import "fmt"
 
 func main() {
-	m := map[string]string{
-		"PurpleScool": "purplescool.ru",
+	m := map[string]int{"a": 1, "b": 2}
+	for key, val := range m {
+		fmt.Println(key, val)
 	}
-	fmt.Println(m)
-	fmt.Println(m["PurpleScool"])
-	m["PurpleScool"] = "https://purpleschool.ru"
-	fmt.Println(m)
-	m["Google"] = "https://google.com"
-	m["Yandex"] = "https://yandex.ru"
-	fmt.Println(m)
-	delete(m, "Yandex")
-	fmt.Println(m)
+
 }
