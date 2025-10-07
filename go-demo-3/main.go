@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
+
+var bookmarks map[string]string
 
 /*
 Создать приложение, которое сначала выдаёт меню:
@@ -16,18 +20,88 @@ import "fmt"
 */
 
 func main() {
+	fmt.Println("Приложение закладок")
+
+	bookmarks = make(map[string]string)
+	for {
+		getMenu()
+		val := scanData("Введите номер операции")
+		switch val {
+		case "1":
+			findAllBookmarks()
+			continue
+		case "2":
+			addBookmark()
+			continue
+		case "3":
+			delBookmark()
+			continue
+		case "4":
+			break
+		}
+	}
+}
+
+func getMenu() {
 	fmt.Println(`1. Посмотреть закладки
 2. Добавить закладку
 3. Удалить закладку
 4. Выход`)
-
-	val := scanData("Введите номер операции")
-	fmt.Println(val)
 }
 
 func scanData(str string) string {
-	for {
-		fmt.Printf("%s: ", str)
-		fmt.Scan(&str)
+	fmt.Printf("%s: ", str)
+	fmt.Scan(&str)
+	return str
+}
+
+func addBookmark() {
+	var val, key string
+	key = scanData("Введите наименование")
+	_, err := findBookmark(key)
+	if err != nil {
+		val = scanData("Введите адрес")
+	} else {
+		fmt.Println("Закладка с ключём %s уже существует", key)
+		return
 	}
+	fmt.Println("Закладка добавлена")
+
+	bookmarks[key] = val
+
+}
+
+func delBookmark() {
+	key := scanData("Введите наименование")
+	_, err := findBookmark(key)
+	if err == nil {
+		delete(bookmarks, key)
+		fmt.Println("Закладка удалена")
+	}
+}
+
+func findAllBookmarks() {
+	if len(bookmarks) <= 0 {
+		fmt.Println("Закладки отстутсвуют")
+		return
+	}
+	for key := range bookmarks {
+		bookmarkVal, err := findBookmark(key)
+		if err == nil {
+			printBookmark(key, bookmarkVal)
+		}
+	}
+}
+
+func findBookmark(key string) (string, error) {
+	bookmarkVal := bookmarks[key]
+	if bookmarkVal == "" {
+		err := fmt.Errorf("Закладка с ключём %s не найдена", key)
+		return "", err
+	}
+	return bookmarkVal, nil
+}
+
+func printBookmark(key, bookmarkVal string) {
+	fmt.Println(key, bookmarkVal)
 }
