@@ -28,13 +28,13 @@ menu:
 		switch val {
 		case "1":
 			findAllBookmarks()
-			continue
+			break
 		case "2":
 			addBookmark()
-			continue
+			break
 		case "3":
 			delBookmark()
-			continue
+			break
 		case "4":
 			break menu
 		}
@@ -103,4 +103,15 @@ func findBookmark(key string) (string, error) {
 
 func printBookmark(key, bookmarkVal string) {
 	fmt.Println(key, bookmarkVal)
+}
+
+func filterByThreshold(data map[string]int, threshold int) []string {
+	slice := make([]string, 0)
+	for key, val := range data {
+		if val > threshold {
+			slice = append(slice, key)
+		}
+	}
+
+	return slice
 }
