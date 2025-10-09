@@ -20,13 +20,6 @@ var bookmarks map[string]string
 */
 
 func main() {
-	fmt.Println("Приложение закладок")
-	var m = map[string]int{}
-	fmt.Println(m)
-	m1 := map[string]int{}
-	fmt.Println(m1)
-	var m = map[string]int{}
-	fmt.Println(m)
 	bookmarks = make(map[string]string)
 menu:
 	for {
