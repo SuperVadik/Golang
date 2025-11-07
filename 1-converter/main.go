@@ -1,22 +1,25 @@
 package main
 
 import (
-	"fmt"
+	fmt "fmt"
 	"slices"
 	"strings"
 )
 
-type currency struct {
+/*type currency struct {
 	orignCurr  string
 	targetCurr string
 	value      float64
-}
+}*/
+
+var currencyMap = map[string]map[string]float64{}
 
 /*
 Функция входа в приложение
 */
 func main() {
 	currArr := []string{"RUB", "USD", "EUR"}
+	initCurrency()
 	fmt.Println("Калькулятор валют")
 	orignCurrName := readCurrencyName("Введите исходную валюту: ", currArr)
 	currArr = changeArray(currArr, orignCurrName)
@@ -29,20 +32,10 @@ func main() {
 /*
 Инициализация курсов валют
 */
-func initCurrency() (currency, currency) {
-	usdRub := currency{
-		orignCurr:  "USD",
-		targetCurr: "RUB",
-		value:      83.37,
-	}
-
-	usdEur := currency{
-		orignCurr:  "USD",
-		targetCurr: "EUR",
-		value:      0.85,
-	}
-
-	return usdRub, usdEur
+func initCurrency() {
+	currencyMap["USD"] = map[string]float64{"EUR": 0.87, "RUB": 81.25}
+	currencyMap["EUR"] = map[string]float64{"EUR": 1.15, "RUB": 93.71}
+	currencyMap["RUB"] = map[string]float64{"EUR": 0.011, "USD": 0.012}
 }
 
 /*
@@ -54,7 +47,7 @@ func readCurrencyName(text string, currArr []string) string {
 		currChoice := fmt.Sprintf("Валюта доступная для выбора: %s", strings.Join(currArr, ", "))
 		fmt.Println(currChoice)
 		fmt.Print(text)
-		fmt.Scan(&val)
+		_, _ = fmt.Scan(&val)
 		val = strings.ToUpper(val)
 		if slices.Contains(currArr, val) {
 			break
@@ -72,7 +65,7 @@ func readCurrencyNumber() float64 {
 	var val float64
 	for {
 		fmt.Print("Введите количество валюты: ")
-		fmt.Scan(&val)
+		_, _ = fmt.Scan(&val)
 		if val > 0 {
 			break
 		}
@@ -85,33 +78,10 @@ func readCurrencyNumber() float64 {
 /*
 Вычисление курса валют относительно друг друга
 */
-func calculate(number float64, orignCurr, targetCurr string) float64 {
-	var val float64
-	usdRub, usdEur := initCurrency()
+func calculate(number float64, origCurrStr, targetCurrStr string) float64 {
 
-	switch orignCurr {
-	case "USD":
-		if targetCurr == "RUB" {
-			val = usdRub.value * number
-		} else {
-			val = usdEur.value * number
-		}
-	case "EUR":
-		if targetCurr == "RUB" {
-			val = usdRub.value * (number / usdEur.value)
-		} else {
-			val = number / usdEur.value
-		}
-	case "RUB":
-		if targetCurr == "USD" {
-			val = number / usdRub.value
-		} else {
-			val = usdEur.value * (number / usdRub.value)
-		}
-
-	}
-
-	return val
+	origCurr := currencyMap[origCurrStr]
+	return origCurr[targetCurrStr] * number
 }
 
 /*
