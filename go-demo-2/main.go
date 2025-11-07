@@ -8,24 +8,17 @@ import "fmt"
 // Вывести сумму баланса в консоль
 
 func main() {
+	transactions := []float64{}
 
-	res := make([]int, 6, 6)
+	for {
+		transaction := scanTransaction()
+		if transaction == 0 {
+			break
+		}
+		transactions = append(transactions, transaction)
+	}
 
-	fmt.Println(len(res), cap(res))
-
-	/*
-	   transactions := []float64{}
-
-	   	for {
-	   		transaction := scanTransaction()
-	   		if transaction == 0 {
-	   			break
-	   		}
-	   		transactions = append(transactions, transaction)
-	   	}
-
-	   fmt.Printf("Ваш баланс: %.2f", calculateBalans(transactions))
-	*/
+	fmt.Printf("Ваш баланс: %.2f", calculateBalans(transactions))
 }
 
 func scanTransaction() float64 {

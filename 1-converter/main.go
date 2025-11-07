@@ -51,7 +51,6 @@ func initCurrency() (currency, currency) {
 func readCurrencyName(text string, currArr []string) string {
 	var val string
 	for {
-
 		currChoice := fmt.Sprintf("Валюта доступная для выбора: %s", strings.Join(currArr, ", "))
 		fmt.Println(currChoice)
 		fmt.Print(text)
