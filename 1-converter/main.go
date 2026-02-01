@@ -6,36 +6,30 @@ import (
 	"strings"
 )
 
-/*type currency struct {
-	orignCurr  string
-	targetCurr string
-	value      float64
-}*/
-
-var currencyMap = map[string]map[string]float64{}
-
 /*
 Функция входа в приложение
 */
 func main() {
 	currArr := []string{"RUB", "USD", "EUR"}
-	initCurrency()
+	currencyMap := initCurrency()
 	fmt.Println("Калькулятор валют")
 	orignCurrName := readCurrencyName("Введите исходную валюту: ", currArr)
 	currArr = changeArray(currArr, orignCurrName)
 	orignCurrNumber := readCurrencyNumber()
 	targetCurrName := readCurrencyName("Введите целевую валюту: ", currArr)
-	val := calculate(orignCurrNumber, strings.ToUpper(orignCurrName), strings.ToUpper(targetCurrName))
+	val := calculate(&currencyMap, orignCurrNumber, strings.ToUpper(orignCurrName), strings.ToUpper(targetCurrName))
 	fmt.Printf("Результат: %.2f %s", val, targetCurrName)
 }
 
 /*
 Инициализация курсов валют
 */
-func initCurrency() {
+func initCurrency() map[string]map[string]float64 {
+	var currencyMap = make(map[string]map[string]float64)
 	currencyMap["USD"] = map[string]float64{"EUR": 0.87, "RUB": 81.25}
 	currencyMap["EUR"] = map[string]float64{"EUR": 1.15, "RUB": 93.71}
 	currencyMap["RUB"] = map[string]float64{"EUR": 0.011, "USD": 0.012}
+	return currencyMap
 }
 
 /*
@@ -78,9 +72,9 @@ func readCurrencyNumber() float64 {
 /*
 Вычисление курса валют относительно друг друга
 */
-func calculate(number float64, origCurrStr, targetCurrStr string) float64 {
+func calculate(currencyMap *map[string]map[string]float64, number float64, origCurrStr, targetCurrStr string) float64 {
 
-	origCurr := currencyMap[origCurrStr]
+	origCurr := (*currencyMap)[origCurrStr]
 	return origCurr[targetCurrStr] * number
 }
 
