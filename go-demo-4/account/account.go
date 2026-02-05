@@ -1,7 +1,9 @@
 package account
 
 import (
+	"encoding/json"
 	"errors"
+
 	//"fmt"
 	"math/rand/v2"
 	"net/url"
@@ -14,18 +16,14 @@ var lettersRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0
 
 // Account struct and methods
 type Account struct {
-	login    string
-	password string
-	url      string
+	Login     string    `json:"login"`
+	Password  string    `json:"password"`
+	Url       string    `json:"url"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type accountWithTimeStamp struct {
-	Account
-	createdAt time.Time
-	updetedAt time.Time
-}
-
-func newAccount(login, password, urlString string) (*Account, error) {
+func CreateAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
 		return nil, errors.New("invalid login")
 	}
@@ -35,9 +33,11 @@ func newAccount(login, password, urlString string) (*Account, error) {
 	}
 
 	acc := &Account{
-		login:    login,
-		url:      urlString,
-		password: password,
+		Login:     login,
+		Url:       urlString,
+		Password:  password,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
 	}
 	if password == "" {
 		acc.generatePassword(12)
@@ -45,32 +45,32 @@ func newAccount(login, password, urlString string) (*Account, error) {
 	return acc, nil
 }
 
-func NewAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
-	if login == "" {
-		return nil, errors.New("invalid login")
-	}
-	_, err := url.ParseRequestURI(urlString)
-	if err != nil {
-		return nil, errors.New("invalid URL")
-	}
+func FindAccount(login, url string) (*Account, error) {
+	return nil, nil
+}
 
-	acc := &accountWithTimeStamp{
-		createdAt: time.Now(),
-		updetedAt: time.Now(),
-		Account: Account{
-			login:    login,
-			password: password,
-			url:      urlString,
-		},
+func findAccountByLogin(login string) (*Account, error) {
+	return nil, nil
+}
+
+func findAccountByUrl(url string) (*Account, error) {
+	return nil, nil
+}
+
+func DeleteAccount(login, url string) error {
+	return nil
+}
+
+func (acc *Account) ToBytes() ([]byte, error) {
+	file, err := json.Marshal(acc)
+	if err != nil {
+		return nil, err
 	}
-	if password == "" {
-		acc.generatePassword(12)
-	}
-	return acc, nil
+	return file, nil
 }
 
 func (acc *Account) OutputPassword() {
-	color.Cyan(acc.login)
+	color.Cyan(acc.Login)
 	//fmt.Println(acc.login, acc.password, acc.url)
 
 }
@@ -80,5 +80,5 @@ func (acc *Account) generatePassword(n int) {
 	for i := range res {
 		res[i] = lettersRunes[rand.IntN(len(lettersRunes))]
 	}
-	acc.password = string(res)
+	acc.Password = string(res)
 }
