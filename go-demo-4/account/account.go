@@ -1,7 +1,6 @@
 package account
 
 import (
-	"encoding/json"
 	"errors"
 
 	//"fmt"
@@ -23,7 +22,7 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func CreateAccount(login, password, urlString string) (*Account, error) {
+func NewAccount(login, password, urlString string) (*Account, error) {
 	if login == "" {
 		return nil, errors.New("invalid login")
 	}
@@ -59,14 +58,6 @@ func findAccountByUrl(url string) (*Account, error) {
 
 func DeleteAccount(login, url string) error {
 	return nil
-}
-
-func (acc *Account) ToBytes() ([]byte, error) {
-	file, err := json.Marshal(acc)
-	if err != nil {
-		return nil, err
-	}
-	return file, nil
 }
 
 func (acc *Account) OutputPassword() {

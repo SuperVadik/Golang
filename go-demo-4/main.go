@@ -2,7 +2,6 @@ package main
 
 import (
 	"demo/password/account"
-	"demo/password/files"
 	"demo/password/menu"
 	"fmt"
 )
@@ -21,14 +20,13 @@ func createAccount() {
 	password := promtData("Введите пароль: ")
 	url := promtData("Введите URL: ")
 
-	myAcc, err := account.CreateAccount(login, password, url)
-
-	file, err := myAcc.ToBytes()
+	myAcc, err := account.NewAccount(login, password, url)
 	if err != nil {
-		fmt.Println("Не удалось преобразовать данные в JSON:", err)
+		fmt.Println("Ошибка создания аккаунта:", err)
 		return
 	}
-	files.WriteFile(file, "data.json")
+	vault := account.NewVoult()
+	vault.AddAccount(*myAcc)
 }
 
 func promtData(promt string) string {
