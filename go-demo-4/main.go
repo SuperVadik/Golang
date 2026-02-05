@@ -7,12 +7,26 @@ import (
 )
 
 func main() {
-	_, err := menu.GetMenu()
-	if err != nil {
-		fmt.Println("Ошибка меню:", err)
-		return
+	for {
+		menuItem, err := menu.GetMenu()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		switch menuItem {
+		case "create":
+			createAccount()
+		case "find":
+			findAccount()
+		case "delete":
+			fmt.Println("Удалить аккаунт")
+		case "exit":
+			return
+		default:
+			fmt.Println("Неверный выбор, попробуйте снова.")
+			continue
+		}
 	}
-	createAccount()
 }
 func createAccount() {
 
@@ -27,6 +41,22 @@ func createAccount() {
 	}
 	vault := account.NewVoult()
 	vault.AddAccount(*myAcc)
+}
+
+func findAccount() {
+	searchStr := promtData("Введите логин или URL для поиска: ")
+	accList, err := account.FindAccount(searchStr)
+	if err != nil {
+		fmt.Println("Ошибка при поиске аккаунта:", err)
+		return
+	}
+	if accList == nil || len(*accList) == 0 {
+		fmt.Println("Аккаунт не найден")
+		return
+	}
+	for _, acc := range *accList {
+		acc.Output()
+	}
 }
 
 func promtData(promt string) string {

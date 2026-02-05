@@ -3,6 +3,7 @@ package account
 import (
 	"demo/password/files"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/fatih/color"
@@ -22,20 +23,13 @@ func (voult *Voult) ToBytes() ([]byte, error) {
 }
 
 func NewVoult() *Voult {
-	file, err := files.ReadFile("data.json")
+	voult, err := getVoult()
 	if err != nil {
-		color.Red("Ошибка при чтении файла: %v", err)
+		color.Red(err.Error())
 		return getNewVault()
 	}
 
-	var voult Voult
-	err = json.Unmarshal(file, &voult)
-	if err != nil {
-		color.Red("Ошибка при загрузке данных: %v", err)
-		return getNewVault()
-	}
-
-	return &voult
+	return voult
 }
 
 func getNewVault() *Voult {
@@ -64,11 +58,17 @@ func (voult *Voult) RemoveAccount(index int) {
 	voult.UpdatedAt = time.Now()
 }
 
-func (voult *Voult) FindAccount(login, url string) *Account {
-	for _, acc := range voult.Accounts {
-		if acc.Login == login && acc.Url == url {
-			return &acc
-		}
+func getVoult() (*Voult, error) {
+	file, err := files.ReadFile("data.json")
+	if err != nil {
+		return nil, fmt.Errorf("Ошибка при чтении файла: %v", err)
 	}
-	return nil
+
+	var voult Voult
+	err = json.Unmarshal(file, &voult)
+	if err != nil {
+		return nil, fmt.Errorf("Ошибка при загрузке данных: %v", err)
+	}
+
+	return &voult, nil
 }

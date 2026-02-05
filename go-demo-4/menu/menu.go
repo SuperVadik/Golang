@@ -3,22 +3,19 @@ package menu
 import "fmt"
 
 func GetMenu() (string, error) {
-	for {
-		printMenu()
-		key := readKey()
-		switch key {
-		case 1:
-			return "create", nil
-		case 2:
-			return "find", nil
-		case 3:
-			return "delete", nil
-		case 4:
-			return "exit", nil
-		default:
-			fmt.Println("Неверный ввод, попробуйте снова.")
-			continue
-		}
+	printMenu()
+	key := readKey()
+	switch key {
+	case 1:
+		return "create", nil
+	case 2:
+		return "find", nil
+	case 3:
+		return "delete", nil
+	case 4:
+		return "exit", nil
+	default:
+		return "", fmt.Errorf("Неверный ввод, попробуйте снова.")
 	}
 }
 

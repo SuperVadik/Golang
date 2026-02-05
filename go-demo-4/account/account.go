@@ -2,6 +2,7 @@ package account
 
 import (
 	"errors"
+	"strings"
 
 	//"fmt"
 	"math/rand/v2"
@@ -44,8 +45,19 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 	return acc, nil
 }
 
-func FindAccount(login, url string) (*Account, error) {
-	return nil, nil
+func FindAccount(searchStr string) (*[]Account, error) {
+	voult, err := getVoult()
+	if err != nil {
+		return nil, err
+	}
+
+	var accList []Account
+	for _, acc := range voult.Accounts {
+		if strings.Contains(acc.Login, searchStr) || strings.Contains(acc.Url, searchStr) {
+			accList = append(accList, acc)
+		}
+	}
+	return &accList, nil
 }
 
 func findAccountByLogin(login string) (*Account, error) {
@@ -60,9 +72,13 @@ func DeleteAccount(login, url string) error {
 	return nil
 }
 
-func (acc *Account) OutputPassword() {
+func (acc *Account) Output() {
 	color.Cyan(acc.Login)
-	//fmt.Println(acc.login, acc.password, acc.url)
+	color.Green(acc.Password)
+	color.Blue(acc.Url)
+	color.Yellow("Дата создания: %s", acc.CreatedAt.Format("2006-01-02 15:04:05"))
+	color.Magenta("Дата обновления: %s", acc.UpdatedAt.Format("2006-01-02 15:04:05"))
+	color.White("--------------------")
 
 }
 
