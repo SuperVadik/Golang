@@ -1,16 +1,23 @@
 package main
 
 import (
-	"bin/app-1/api"
 	"bin/app-1/bins"
-	"bin/app-1/file"
 	"bin/app-1/storage"
+	"fmt"
 )
 
 func main() {
-	bin := bins.NewBin("12345", true, "MyFirstBin")
-	storage.SaveData()
-	api.StartAPI()
-	file.ReadFile()
-	println("Bin created with ID:", bin.Id)
+	binList := bins.NewBinList()
+
+	err := storage.SaveData(binList, "data.json")
+	if err != nil {
+		panic(err)
+	}
+
+	loadedData, err := storage.LoadData[[]bins.Bin](nil, "data.json")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Загруженные данные: %+v\n", *loadedData)
 }
