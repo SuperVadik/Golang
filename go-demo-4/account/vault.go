@@ -42,13 +42,7 @@ func getNewVault() *Vault {
 
 func (vault *Vault) AddAccount(acc Account) {
 	vault.Accounts = append(vault.Accounts, acc)
-	vault.UpdatedAt = time.Now()
-	data, err := vault.ToBytes()
-	if err != nil {
-		color.Red("Ошибка при преобразовании данных: %v", err)
-		return
-	}
-	files.WriteFile(data, "data.json")
+	vault.save()
 }
 
 func (vault *Vault) DeleteAccount(searchStr string) (bool, error) {
@@ -57,12 +51,7 @@ func (vault *Vault) DeleteAccount(searchStr string) (bool, error) {
 		return false, err
 	}
 	vault.Accounts = *difference(&vault.Accounts, accList)
-	data, err := vault.ToBytes()
-	if err != nil {
-		color.Red("Ошибка при преобразовании данных: %v", err)
-		return false, err
-	}
-	files.WriteFile(data, "data.json")
+	vault.save()
 	return true, nil
 }
 
@@ -117,4 +106,14 @@ func difference(slice1, slice2 *[]Account) *[]Account {
 		}
 	}
 	return &result
+}
+
+func (vault *Vault) save() {
+	vault.UpdatedAt = time.Now()
+	data, err := vault.ToBytes()
+	if err != nil {
+		color.Red("Ошибка при преобразовании данных: %v", err)
+		return
+	}
+	files.WriteFile(data, "data.json")
 }
