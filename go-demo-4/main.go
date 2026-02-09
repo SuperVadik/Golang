@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	vault := account.NewVault()
 	for {
 		menuItem, err := menu.GetMenu()
 		if err != nil {
@@ -15,11 +16,11 @@ func main() {
 		}
 		switch menuItem {
 		case "create":
-			createAccount()
+			createAccount(vault)
 		case "find":
-			findAccount()
+			findAccount(vault)
 		case "delete":
-			fmt.Println("Удалить аккаунт")
+			deleteAccount(vault)
 		case "exit":
 			return
 		default:
@@ -28,7 +29,7 @@ func main() {
 		}
 	}
 }
-func createAccount() {
+func createAccount(vault *account.Vault) {
 
 	login := promtData("Введите логин: ")
 	password := promtData("Введите пароль: ")
@@ -39,23 +40,31 @@ func createAccount() {
 		fmt.Println("Ошибка создания аккаунта:", err)
 		return
 	}
-	vault := account.NewVoult()
+
 	vault.AddAccount(*myAcc)
 }
 
-func findAccount() {
+func findAccount(vault *account.Vault) {
 	searchStr := promtData("Введите логин или URL для поиска: ")
-	accList, err := account.FindAccount(searchStr)
+	accList, err := vault.FindAccount(searchStr)
 	if err != nil {
-		fmt.Println("Ошибка при поиске аккаунта:", err)
-		return
-	}
-	if accList == nil || len(*accList) == 0 {
-		fmt.Println("Аккаунт не найден")
+		fmt.Println(err)
 		return
 	}
 	for _, acc := range *accList {
 		acc.Output()
+	}
+}
+
+func deleteAccount(vault *account.Vault) {
+	searchStr := promtData("Введите логин или URL для поиска: ")
+	isDeleted, err := vault.DeleteAccount(searchStr)
+	if err != nil {
+		fmt.Println("Ошибка при удалении аккаунта:", err)
+		return
+	}
+	if isDeleted {
+		fmt.Println("Аккаунт успешно удалён")
 	}
 }
 

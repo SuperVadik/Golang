@@ -2,7 +2,6 @@ package account
 
 import (
 	"errors"
-	"strings"
 
 	//"fmt"
 	"math/rand/v2"
@@ -43,33 +42,6 @@ func NewAccount(login, password, urlString string) (*Account, error) {
 		acc.generatePassword(12)
 	}
 	return acc, nil
-}
-
-func FindAccount(searchStr string) (*[]Account, error) {
-	voult, err := getVoult()
-	if err != nil {
-		return nil, err
-	}
-
-	var accList []Account
-	for _, acc := range voult.Accounts {
-		if strings.Contains(acc.Login, searchStr) || strings.Contains(acc.Url, searchStr) {
-			accList = append(accList, acc)
-		}
-	}
-	return &accList, nil
-}
-
-func findAccountByLogin(login string) (*Account, error) {
-	return nil, nil
-}
-
-func findAccountByUrl(url string) (*Account, error) {
-	return nil, nil
-}
-
-func DeleteAccount(login, url string) error {
-	return nil
 }
 
 func (acc *Account) Output() {
