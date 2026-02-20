@@ -1,105 +1,70 @@
 package main
 
 import (
-	"errors"
-	"fmt"
-	"math/rand/v2"
-	"net/url"
-	"time"
+	"demo/password/account"
+	"demo/password/files"
+	"demo/password/menu"
+	"demo/password/output"
 )
 
-var lettersRunes = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-*!@#$%^&()")
-
-// account struct and methods
-type account struct {
-	login    string
-	password string
-	url      string
-}
-
-type accountWithTimeStamp struct {
-	account
-	createdAt time.Time
-	updetedAt time.Time
-}
-
-/*func newAccount(login, password, urlString string) (*account, error) {
-	if login == "" {
-		return nil, errors.New("invalid login")
-	}
-	_, err := url.ParseRequestURI(urlString)
-	if err != nil {
-		return nil, errors.New("invalid URL")
-	}
-
-	acc := &account{
-		login:    login,
-		url:      urlString,
-		password: password,
-	}
-	if password == "" {
-		acc.generatePassword(12)
-	}
-	return acc, nil
-}*/
-
-func newAccountWithTimeStamp(login, password, urlString string) (*accountWithTimeStamp, error) {
-	if login == "" {
-		return nil, errors.New("invalid login")
-	}
-	_, err := url.ParseRequestURI(urlString)
-	if err != nil {
-		return nil, errors.New("invalid URL")
-	}
-
-	acc := &accountWithTimeStamp{
-		createdAt: time.Now(),
-		updetedAt: time.Now(),
-		account: account{
-			login:    login,
-			password: password,
-			url:      urlString,
-		},
-	}
-	if password == "" {
-		acc.generatePassword(12)
-	}
-	return acc, nil
-}
-
-func (acc *account) outputPassword() {
-	fmt.Println(acc.login, acc.password, acc.url)
-
-}
-
-func (acc *account) generatePassword(n int) {
-	res := make([]rune, n)
-	for i := range res {
-		res[i] = lettersRunes[rand.IntN(len(lettersRunes))]
-	}
-	acc.password = string(res)
-}
-
-//
-
-// main function
 func main() {
-	login := promtData("Enter your login:")
-	password := promtData("Enter your password:")
-	url := promtData("Enter the URL:")
+	vaultWithDb := account.NewVault(files.NewJsonBd("data.json"))
+	for {
+		menuItem, err := menu.GetMenu()
+		if err != nil {
+			output.PrintError(err)
+			continue
+		}
+		switch menuItem {
+		case "create":
+			createAccount(vaultWithDb)
+		case "find":
+			findAccount(vaultWithDb)
+		case "delete":
+			deleteAccount(vaultWithDb)
+		case "exit":
+			return
+		default:
+			output.PrintError("Неверный выбор, попробуйте снова.")
+			continue
+		}
+	}
+}
+func createAccount(vaultWithDb *account.VaultWithDb) {
 
-	myAcc, err := newAccountWithTimeStamp(login, password, url)
+	login := output.PromtData([]string{"Введите логин: "})
+	password := output.PromtData([]string{"Введите пароль: "})
+	url := output.PromtData([]string{"Введите URL: "})
+
+	myAcc, err := account.NewAccount(login, password, url)
 	if err != nil {
-		fmt.Println("Не верный формат URL: ", err)
+		output.PrintError("Ошибка создания аккаунта: " + err.Error())
 		return
 	}
-	myAcc.outputPassword()
+
+	vaultWithDb.AddAccount(*myAcc)
 }
 
-// promtData function to get user input
-func promtData(promt string) string {
-	fmt.Print(promt + " ")
-	var res string
-	fmt.Scanln(&res)
-	return res
+func findAccount(vaultWithDb *account.VaultWithDb) {
+	searchStr := output.PromtData([]string{"Введите логин или URL для поиска: "})
+	accList, err := vaultWithDb.FindAccount(searchStr)
+	if err != nil {
+		output.PrintError(err)
+		return
+	}
+	for _, acc := range *accList {
+		acc.Output()
+	}
+}
+
+func deleteAccount(vaultWithDb *account.VaultWithDb) {
+	searchStr := output.PromtData([]string{"Введите логин или URL для поиска: "})
+	isDeleted, err := vaultWithDb.DeleteAccount(searchStr)
+	if err != nil {
+		output.PrintError("Ошибка при удалении аккаунта: " + err.Error())
+		return
+	}
+	if isDeleted {
+		output.PrintError("Аккаунт успешно удалён")
+	}
 }
