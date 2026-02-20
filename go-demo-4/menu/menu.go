@@ -1,6 +1,9 @@
 package menu
 
-import "fmt"
+import (
+	"demo/password/output"
+	"fmt"
+)
 
 func GetMenu() (string, error) {
 	printMenu()
@@ -20,12 +23,15 @@ func GetMenu() (string, error) {
 }
 
 func printMenu() {
-	fmt.Println("____Приложение паролей____")
-	fmt.Println("Выберите вариант:")
-	fmt.Println("1: Создать аккаунт")
-	fmt.Println("2: Найти аккаунт")
-	fmt.Println("3: Удалить аккаунт")
-	fmt.Println("4: Выход")
+	promtData := []string{
+		"____Приложение паролей____",
+		"1: Создать аккаунт",
+		"2: Найти аккаунт",
+		"3: Удалить аккаунт",
+		"4: Выход",
+		"Выберите вариант",
+	}
+	output.PromtData(promtData)
 }
 
 func readKey() int {

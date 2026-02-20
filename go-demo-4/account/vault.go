@@ -1,18 +1,34 @@
 package account
 
 import (
-	"demo/password/files"
+	"demo/password/output"
 	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
-
-	"github.com/fatih/color"
 )
+
+type ByteReader interface {
+	Read() ([]byte, error)
+}
+
+type ByteWriter interface {
+	Write(content []byte) error
+}
+
+type Db interface {
+	ByteReader
+	ByteWriter
+}
 
 type Vault struct {
 	Accounts  []Account `json:"accounts"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type VaultWithDb struct {
+	Vault
+	db Db
 }
 
 func (vault *Vault) ToBytes() ([]byte, error) {
@@ -23,46 +39,44 @@ func (vault *Vault) ToBytes() ([]byte, error) {
 	return file, nil
 }
 
-func NewVault() *Vault {
-	vault, err := getVault()
+func NewVault(db Db) *VaultWithDb {
+	vault, err := getVault(db)
 	if err != nil {
-		color.Red(err.Error())
-		return getNewVault()
+		output.PrintError(err.Error())
+		return getNewVault(db)
 	}
-
 	return vault
 }
 
-func getNewVault() *Vault {
-	return &Vault{
-		Accounts:  []Account{},
-		UpdatedAt: time.Now(),
+func getNewVault(db Db) *VaultWithDb {
+	return &VaultWithDb{
+		Vault: Vault{
+			Accounts:  []Account{},
+			UpdatedAt: time.Now(),
+		},
+		db: db,
 	}
 }
 
-func (vault *Vault) AddAccount(acc Account) {
-	vault.Accounts = append(vault.Accounts, acc)
-	vault.save()
+func (vaultWithDb *VaultWithDb) AddAccount(acc Account) {
+	vaultWithDb.Accounts = append(vaultWithDb.Accounts, acc)
+	vaultWithDb.save()
 }
 
-func (vault *Vault) DeleteAccount(searchStr string) (bool, error) {
-	accList, err := vault.FindAccount(searchStr)
+func (vaultWithDb *VaultWithDb) DeleteAccount(searchStr string) (bool, error) {
+	accList, err := vaultWithDb.FindAccount(searchStr)
 	if err != nil {
 		return false, err
 	}
-	vault.Accounts = *difference(&vault.Accounts, accList)
-	vault.save()
+	vaultWithDb.Accounts = *difference(&vaultWithDb.Accounts, accList)
+	vaultWithDb.save()
 	return true, nil
 }
 
-func (vault *Vault) FindAccount(searchStr string) (*[]Account, error) {
-	vault, err := getVault()
-	if err != nil {
-		return nil, fmt.Errorf("Ошибка при поиске аккаунта:", err)
-	}
+func (vaultWithDb *VaultWithDb) FindAccount(searchStr string) (*[]Account, error) {
 
 	var accList []Account
-	for _, acc := range vault.Accounts {
+	for _, acc := range vaultWithDb.Vault.Accounts {
 		if strings.Contains(acc.Login, searchStr) || strings.Contains(acc.Url, searchStr) {
 			accList = append(accList, acc)
 		}
@@ -70,27 +84,21 @@ func (vault *Vault) FindAccount(searchStr string) (*[]Account, error) {
 	return &accList, nil
 }
 
-func findAccountByLogin(login string) (*Account, error) {
-	return nil, nil
-}
-
-func findAccountByUrl(url string) (*Account, error) {
-	return nil, nil
-}
-
-func getVault() (*Vault, error) {
-	file, err := files.ReadFile("data.json")
+func getVault(db Db) (*VaultWithDb, error) {
+	file, err := db.Read()
 	if err != nil {
-		return nil, fmt.Errorf("Ошибка при чтении файла: %v", err)
+		return nil, fmt.Errorf("Ошибка при загрузке данных: %v", err)
 	}
-
 	var vault Vault
 	err = json.Unmarshal(file, &vault)
 	if err != nil {
 		return nil, fmt.Errorf("Ошибка при загрузке данных: %v", err)
 	}
-
-	return &vault, nil
+	vaultWithDb := VaultWithDb{
+		Vault: vault,
+		db:    db,
+	}
+	return &vaultWithDb, nil
 }
 
 func difference(slice1, slice2 *[]Account) *[]Account {
@@ -108,12 +116,12 @@ func difference(slice1, slice2 *[]Account) *[]Account {
 	return &result
 }
 
-func (vault *Vault) save() {
-	vault.UpdatedAt = time.Now()
-	data, err := vault.ToBytes()
+func (vaultWithDb *VaultWithDb) save() {
+	vaultWithDb.UpdatedAt = time.Now()
+	data, err := vaultWithDb.ToBytes()
 	if err != nil {
-		color.Red("Ошибка при преобразовании данных: %v", err)
+		output.PrintError("Ошибка при преобразовании данных: " + err.Error())
 		return
 	}
-	files.WriteFile(data, "data.json")
+	vaultWithDb.db.Write(data)
 }

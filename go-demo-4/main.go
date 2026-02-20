@@ -2,53 +2,54 @@ package main
 
 import (
 	"demo/password/account"
+	"demo/password/files"
 	"demo/password/menu"
-	"fmt"
+	"demo/password/output"
 )
 
 func main() {
-	vault := account.NewVault()
+	vaultWithDb := account.NewVault(files.NewJsonBd("data.json"))
 	for {
 		menuItem, err := menu.GetMenu()
 		if err != nil {
-			fmt.Println(err)
+			output.PrintError(err)
 			continue
 		}
 		switch menuItem {
 		case "create":
-			createAccount(vault)
+			createAccount(vaultWithDb)
 		case "find":
-			findAccount(vault)
+			findAccount(vaultWithDb)
 		case "delete":
-			deleteAccount(vault)
+			deleteAccount(vaultWithDb)
 		case "exit":
 			return
 		default:
-			fmt.Println("Неверный выбор, попробуйте снова.")
+			output.PrintError("Неверный выбор, попробуйте снова.")
 			continue
 		}
 	}
 }
-func createAccount(vault *account.Vault) {
+func createAccount(vaultWithDb *account.VaultWithDb) {
 
-	login := promtData("Введите логин: ")
-	password := promtData("Введите пароль: ")
-	url := promtData("Введите URL: ")
+	login := output.PromtData([]string{"Введите логин: "})
+	password := output.PromtData([]string{"Введите пароль: "})
+	url := output.PromtData([]string{"Введите URL: "})
 
 	myAcc, err := account.NewAccount(login, password, url)
 	if err != nil {
-		fmt.Println("Ошибка создания аккаунта:", err)
+		output.PrintError("Ошибка создания аккаунта: " + err.Error())
 		return
 	}
 
-	vault.AddAccount(*myAcc)
+	vaultWithDb.AddAccount(*myAcc)
 }
 
-func findAccount(vault *account.Vault) {
-	searchStr := promtData("Введите логин или URL для поиска: ")
-	accList, err := vault.FindAccount(searchStr)
+func findAccount(vaultWithDb *account.VaultWithDb) {
+	searchStr := output.PromtData([]string{"Введите логин или URL для поиска: "})
+	accList, err := vaultWithDb.FindAccount(searchStr)
 	if err != nil {
-		fmt.Println(err)
+		output.PrintError(err)
 		return
 	}
 	for _, acc := range *accList {
@@ -56,21 +57,14 @@ func findAccount(vault *account.Vault) {
 	}
 }
 
-func deleteAccount(vault *account.Vault) {
-	searchStr := promtData("Введите логин или URL для поиска: ")
-	isDeleted, err := vault.DeleteAccount(searchStr)
+func deleteAccount(vaultWithDb *account.VaultWithDb) {
+	searchStr := output.PromtData([]string{"Введите логин или URL для поиска: "})
+	isDeleted, err := vaultWithDb.DeleteAccount(searchStr)
 	if err != nil {
-		fmt.Println("Ошибка при удалении аккаунта:", err)
+		output.PrintError("Ошибка при удалении аккаунта: " + err.Error())
 		return
 	}
 	if isDeleted {
-		fmt.Println("Аккаунт успешно удалён")
+		output.PrintError("Аккаунт успешно удалён")
 	}
-}
-
-func promtData(promt string) string {
-	fmt.Print(promt + " ")
-	var res string
-	fmt.Scanln(&res)
-	return res
 }
