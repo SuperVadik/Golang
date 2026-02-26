@@ -2,19 +2,21 @@ package main
 
 import (
 	"bin/app-1/bins"
+	"bin/app-1/files"
 	"bin/app-1/storage"
 	"fmt"
 )
 
 func main() {
-	binList := bins.NewBinList()
+	db := files.NewJsonDb("data.json")
 
-	err := storage.SaveData(binList, "data.json")
+	binList := bins.NewBinList()
+	err := storage.SaveData(binList, db)
 	if err != nil {
 		panic(err)
 	}
 
-	loadedData, err := storage.LoadData[[]bins.Bin](nil, "data.json")
+	loadedData, err := storage.LoadData(db)
 	if err != nil {
 		panic(err)
 	}

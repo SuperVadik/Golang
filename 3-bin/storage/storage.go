@@ -1,9 +1,14 @@
 package storage
 
 import (
-	"bin/app-1/files"
+	"bin/app-1/bins"
 	"encoding/json"
 )
+
+type Storage interface {
+	Read() ([]byte, error)
+	Write(content []byte) error
+}
 
 func toByte(dataByte any) ([]byte, error) {
 	file, err := json.Marshal(dataByte)
@@ -13,25 +18,26 @@ func toByte(dataByte any) ([]byte, error) {
 	return file, nil
 }
 
-// SaveBins сохраняет список бинов в файл bins.txt
-func SaveData(data any, name string) error {
+// SaveBins сохраняет список бинов
+func SaveData(data any, db Storage) error {
 	dataByte, err := toByte(data)
 	if err != nil {
 		return err
 	}
-	files.WriteFile(dataByte, name)
+	db.Write(dataByte)
 	return nil
 }
 
-// LoadBins загружает список бинов из файла bins.txt
-func LoadData[T any](data *T, name string) (*T, error) {
-	dataByte, err := files.ReadFile(name)
+// LoadBins загружает список бинов
+func LoadData(db Storage) (*[]bins.Bin, error) {
+	dataByte, err := db.Read()
 	if err != nil {
 		return nil, err
 	}
+	var data []bins.Bin
 	err = json.Unmarshal(dataByte, &data)
 	if err != nil {
 		return nil, err
 	}
-	return data, nil
+	return &data, nil
 }
