@@ -6,13 +6,21 @@ import (
 	"path/filepath"
 )
 
-func ReadFile(name string) ([]byte, error) {
+type File struct {
+	name string
+}
+
+func NewJsonDb(name string) *File {
+	return &File{name: name}
+}
+
+func (f File) Read() ([]byte, error) {
 	ext := "json"
-	isTrueExt := checkFuleExtension(name, ext)
+	isTrueExt := checkFileExtension(f.name, ext)
 	if !isTrueExt {
 		return nil, fmt.Errorf("%s", "неподдерживаемый формат файла. Ожидается "+"."+ext)
 	}
-	data, err := os.ReadFile(name)
+	data, err := os.ReadFile(f.name)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
@@ -20,22 +28,24 @@ func ReadFile(name string) ([]byte, error) {
 	return data, nil
 }
 
-func WriteFile(content []byte, name string) {
-	file, err := os.Create(name)
+func (f File) Write(content []byte) error {
+	file, err := os.Create(f.name)
 	if err != nil {
 		fmt.Println(err)
+		return err
 	}
 	defer file.Close()
 	_, err = file.Write(content)
 	if err != nil {
 		fmt.Println(err)
-		return
+		return err
 	}
 	fmt.Println("Запись успешна")
+	return nil
 }
 
 // проверяет расширение файла на .json
-func checkFuleExtension(name, ext string) bool {
+func checkFileExtension(name, ext string) bool {
 	filepath.Ext(name)
 	if filepath.Ext(name) != "."+ext {
 		return false

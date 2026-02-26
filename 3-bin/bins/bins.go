@@ -2,14 +2,16 @@ package bins
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Bin представляет собой структуру данных для хранения информации о бине
 type Bin struct {
-	Id        string
-	Private   bool
-	CreatedAt time.Time
-	Name      string
+	Id        string    `json:"id"`
+	Private   bool      `json:"private"`
+	CreatedAt time.Time `json:"created_at"`
+	Name      string    `json:"name"`
 }
 
 // NewBin создает и возвращает новый бин с заданными параметрами
@@ -24,5 +26,5 @@ func NewBin(id string, private bool, name string) *Bin {
 
 // NewBinList создает и возвращает список бинов для демонстрации
 func NewBinList() []*Bin {
-	return []*Bin{NewBin("bin1", true, "FirstBin"), NewBin("bin2", false, "SecondBin")}
+	return []*Bin{NewBin(uuid.New().String(), true, "FirstBin"), NewBin(uuid.New().String(), false, "SecondBin")}
 }
